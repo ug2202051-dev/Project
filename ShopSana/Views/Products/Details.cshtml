@@ -1,0 +1,183 @@
+@model ShopSana.Models.ViewModels.ProductDetailsViewModel
+@{
+    ViewData["Title"] = Model.Product.Name;
+}
+
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index">Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.Product.CategoryId">@Model.Product.Category?.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Product.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="@(Model.Product.ImageUrl ?? "https://via.placeholder.com/600x500")" class="card-img-top" alt="@Model.Product.Name" style="height: 500px; object-fit: cover;">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="mb-2">
+                <span class="badge bg-primary">@Model.Product.Category?.Name</span>
+                @if (Model.Product.IsFeatured)
+                {
+                    <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Featured</span>
+                }
+            </div>
+
+            <h1 class="fw-bold mb-3">@Model.Product.Name</h1>
+
+            @if (!string.IsNullOrEmpty(Model.Product.Brand))
+            {
+                <p class="text-muted"><i class="bi bi-tag"></i> Brand: <strong>@Model.Product.Brand</strong></p>
+            }
+
+            <div class="mb-4">
+                @if (Model.Product.HasDiscount)
+                {
+                    <span class="text-decoration-line-through text-muted fs-4 me-2">$@Model.Product.Price.ToString("F2")</span>
+                    <span class="fw-bold text-danger fs-2">$@Model.Product.CurrentPrice.ToString("F2")</span>
+                    <span class="badge bg-danger ms-2">Save @(Math.Round((Model.Product.Price - Model.Product.CurrentPrice) / Model.Product.Price * 100))%</span>
+                }
+                else
+                {
+                    <span class="fw-bold text-primary fs-2">$@Model.Product.Price.ToString("F2")</span>
+                }
+            </div>
+
+            <div class="mb-4">
+                @if (Model.Product.IsInStock)
+                {
+                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle"></i> In Stock (@Model.Product.StockQuantity available)</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger fs-6"><i class="bi bi-x-circle"></i> Out of Stock</span>
+                }
+            </div>
+
+            @if (Model.Product.IsInStock)
+            {
+                <form id="addToCartForm" class="mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <label class="form-label">Quantity:</label>
+                            <div class="input-group" style="width: 140px;">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementQty()">-</button>
+                                <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" max="@Model.Product.StockQuantity">
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementQty(@Model.Product.StockQuantity)">+</button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" onclick="addToCart(@Model.Product.Id)" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            }
+
+            <hr>
+
+            <h5 class="mb-3">Product Description</h5>
+            <p class="text-muted">@(Model.Product.Description ?? "No description available.")</p>
+
+            @if (!string.IsNullOrEmpty(Model.Product.SKU))
+            {
+                <p class="text-muted small"><strong>SKU:</strong> @Model.Product.SKU</p>
+            }
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (Model.RelatedProducts.Any())
+    {
+        <hr class="my-5">
+        <h3 class="mb-4">Related Products</h3>
+        <div class="row g-4">
+            @foreach (var product in Model.RelatedProducts)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card h-100 border-0 shadow-sm product-card position-relative">
+                        @if (product.HasDiscount)
+                        {
+                            <span class="badge bg-danger discount-badge">
+                                @(Math.Round((product.Price - product.CurrentPrice) / product.Price * 100))% OFF
+                            </span>
+                        }
+                        <img src="@(product.ImageUrl ?? "https://via.placeholder.com/400x300")" class="card-img-top" alt="@product.Name" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="card-title mb-2">@product.Name</h6>
+                            <div>
+                                @if (product.HasDiscount)
+                                {
+                                    <span class="text-decoration-line-through text-muted me-1">$@product.Price.ToString("F2")</span>
+                                    <span class="fw-bold text-danger">$@product.CurrentPrice.ToString("F2")</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-primary">$@product.Price.ToString("F2")</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function incrementQty(max) {
+            var input = document.getElementById('quantity');
+            var value = parseInt(input.value) || 1;
+            if (value < max) {
+                input.value = value + 1;
+            }
+        }
+
+        function decrementQty() {
+            var input = document.getElementById('quantity');
+            var value = parseInt(input.value) || 1;
+            if (value > 1) {
+                input.value = value - 1;
+            }
+        }
+
+        function addToCart(productId) {
+            var quantity = document.getElementById('quantity').value;
+            var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            
+            fetch('/Cart/Add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: 'productId=' + productId + '&quantity=' + quantity + '&__RequestVerificationToken=' + encodeURIComponent(token)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cartCount').textContent = data.cartCount;
+                    alert('Product added to cart!');
+                } else {
+                    alert(data.message || 'Failed to add product to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}

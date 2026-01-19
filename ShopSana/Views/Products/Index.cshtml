@@ -1,0 +1,166 @@
+@model ShopSana.Models.ViewModels.ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-funnel"></i> Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Index" method="get">
+                        <!-- Search -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Search</label>
+                            <input type="text" name="search" class="form-control" placeholder="Search products..." value="@Model.SearchTerm">
+                        </div>
+
+                        <!-- Categories -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Category</label>
+                            <select name="categoryId" class="form-select">
+                                <option value="">All Categories</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id)">@category.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Sort -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Sort By</label>
+                            <select name="sort" class="form-select">
+                                <option value="" selected="@(string.IsNullOrEmpty(Model.SortBy))">Featured</option>
+                                <option value="price_asc" selected="@(Model.SortBy == "price_asc")">Price: Low to High</option>
+                                <option value="price_desc" selected="@(Model.SortBy == "price_desc")">Price: High to Low</option>
+                                <option value="name_asc" selected="@(Model.SortBy == "name_asc")">Name: A-Z</option>
+                                <option value="name_desc" selected="@(Model.SortBy == "name_desc")">Name: Z-A</option>
+                                <option value="newest" selected="@(Model.SortBy == "newest")">Newest First</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Apply Filters
+                        </button>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.SelectedCategoryId.HasValue || !string.IsNullOrEmpty(Model.SortBy))
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">
+                                <i class="bi bi-x-circle"></i> Clear Filters
+                            </a>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">
+                    @if (Model.SelectedCategoryId.HasValue)
+                    {
+                        @Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.Name
+                    }
+                    else if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <span>Search results for "@Model.SearchTerm"</span>
+                    }
+                    else
+                    {
+                        <span>All Products</span>
+                    }
+                </h4>
+                <span class="text-muted">@Model.TotalProducts products found</span>
+            </div>
+
+            @if (!Model.Products.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-search text-muted" style="font-size: 60px;"></i>
+                    <h4 class="mt-3">No products found</h4>
+                    <p class="text-muted">Try adjusting your search or filters</p>
+                    <a asp-action="Index" class="btn btn-primary">View All Products</a>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm product-card position-relative">
+                                @if (product.HasDiscount)
+                                {
+                                    <span class="badge bg-danger discount-badge">
+                                        @(Math.Round((product.Price - product.CurrentPrice) / product.Price * 100))% OFF
+                                    </span>
+                                }
+                                @if (!product.IsInStock)
+                                {
+                                    <span class="badge bg-secondary position-absolute" style="top: 10px; right: 10px;">Out of Stock</span>
+                                }
+                                <img src="@(product.ImageUrl ?? "https://via.placeholder.com/400x300")" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <p class="text-muted small mb-1">@product.Category?.Name</p>
+                                    <h6 class="card-title mb-2">@product.Name</h6>
+                                    @if (!string.IsNullOrEmpty(product.Brand))
+                                    {
+                                        <p class="small text-muted mb-2"><i class="bi bi-tag"></i> @product.Brand</p>
+                                    }
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            @if (product.HasDiscount)
+                                            {
+                                                <span class="text-decoration-line-through text-muted me-2">$@product.Price.ToString("F2")</span>
+                                                <span class="fw-bold text-danger">$@product.CurrentPrice.ToString("F2")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold text-primary">$@product.Price.ToString("F2")</span>
+                                            }
+                                        </div>
+                                        @if (product.IsInStock)
+                                        {
+                                            <span class="badge bg-success">In Stock</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0">
+                                    <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary btn-sm w-100">
+                                        <i class="bi bi-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.SortBy">Previous</a>
+                            </li>
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.SortBy">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.SortBy">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>

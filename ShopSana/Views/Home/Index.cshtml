@@ -1,0 +1,182 @@
+﻿@model ShopSana.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Home - Online Shopping Store";
+}
+
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Welcome to ShopSana</h1>
+                <p class="lead mb-4">Discover amazing products at unbeatable prices. Shop the latest trends in electronics, fashion, home goods, and more!</p>
+                <div class="d-flex gap-3">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg">
+                        <i class="bi bi-grid"></i> Shop Now
+                    </a>
+                    <a asp-controller="Home" asp-action="About" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-info-circle"></i> Learn More
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="Shopping" class="img-fluid rounded shadow-lg" style="max-height: 400px; object-fit: cover;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Shop by Category</h2>
+        <div class="row g-4">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="col-lg-3 col-md-4 col-6">
+                    <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@category.Id" class="text-decoration-none">
+                        <div class="card h-100 border-0 shadow-sm product-card">
+                            <img src="@(category.ImageUrl ?? "https://via.placeholder.com/400x300")" class="card-img-top" alt="@category.Name" style="height: 150px; object-fit: cover;">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-dark mb-0">@category.Name</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="bi bi-star-fill text-warning"></i> Featured Products</h2>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">View All</a>
+        </div>
+        <div class="row g-4">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card h-100 border-0 shadow-sm product-card position-relative">
+                        @if (product.HasDiscount)
+                        {
+                            <span class="badge bg-danger discount-badge">
+                                @(Math.Round((product.Price - product.CurrentPrice) / product.Price * 100))% OFF
+                            </span>
+                        }
+                        <img src="@(product.ImageUrl ?? "https://via.placeholder.com/400x300")" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <p class="text-muted small mb-1">@product.Category?.Name</p>
+                            <h6 class="card-title mb-2">@product.Name</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    @if (product.HasDiscount)
+                                    {
+                                        <span class="text-decoration-line-through text-muted me-2">$@product.Price.ToString("F2")</span>
+                                        <span class="fw-bold text-danger">$@product.CurrentPrice.ToString("F2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-primary">$@product.Price.ToString("F2")</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="bi bi-lightning-fill text-info"></i> New Arrivals</h2>
+            <a asp-controller="Products" asp-action="Index" asp-route-sort="newest" class="btn btn-outline-primary">View All</a>
+        </div>
+        <div class="row g-4">
+            @foreach (var product in Model.NewArrivals.Take(4))
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card h-100 border-0 shadow-sm product-card position-relative">
+                        <span class="badge bg-info discount-badge">NEW</span>
+                        @if (product.HasDiscount)
+                        {
+                            <span class="badge bg-danger position-absolute" style="top: 10px; right: 10px;">
+                                @(Math.Round((product.Price - product.CurrentPrice) / product.Price * 100))% OFF
+                            </span>
+                        }
+                        <img src="@(product.ImageUrl ?? "https://via.placeholder.com/400x300")" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <p class="text-muted small mb-1">@product.Category?.Name</p>
+                            <h6 class="card-title mb-2">@product.Name</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    @if (product.HasDiscount)
+                                    {
+                                        <span class="text-decoration-line-through text-muted me-2">$@product.Price.ToString("F2")</span>
+                                        <span class="fw-bold text-danger">$@product.CurrentPrice.ToString("F2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-primary">$@product.Price.ToString("F2")</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="p-4">
+                    <i class="bi bi-truck fs-1 text-primary mb-3"></i>
+                    <h5>Free Shipping</h5>
+                    <p class="text-muted mb-0">On orders over $50</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4">
+                    <i class="bi bi-shield-check fs-1 text-primary mb-3"></i>
+                    <h5>Secure Payment</h5>
+                    <p class="text-muted mb-0">100% secure transactions</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4">
+                    <i class="bi bi-arrow-counterclockwise fs-1 text-primary mb-3"></i>
+                    <h5>Easy Returns</h5>
+                    <p class="text-muted mb-0">30-day return policy</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4">
+                    <i class="bi bi-headset fs-1 text-primary mb-3"></i>
+                    <h5>24/7 Support</h5>
+                    <p class="text-muted mb-0">Dedicated customer support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

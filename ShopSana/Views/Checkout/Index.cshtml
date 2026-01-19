@@ -1,0 +1,162 @@
+@model ShopSana.Models.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4"><i class="bi bi-credit-card"></i> Checkout</h2>
+
+    <form asp-action="PlaceOrder" method="post">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Shipping Information -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="bi bi-truck"></i> Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="ShippingName" class="form-label">Full Name</label>
+                            <input asp-for="ShippingName" class="form-control" placeholder="John Doe" />
+                            <span asp-validation-for="ShippingName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ShippingAddress" class="form-label">Street Address</label>
+                            <input asp-for="ShippingAddress" class="form-control" placeholder="123 Main Street, Apt 4B" />
+                            <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ShippingCity" class="form-label">City</label>
+                                <input asp-for="ShippingCity" class="form-control" placeholder="New York" />
+                                <span asp-validation-for="ShippingCity" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ShippingPostalCode" class="form-label">Postal Code</label>
+                                <input asp-for="ShippingPostalCode" class="form-control" placeholder="10001" />
+                                <span asp-validation-for="ShippingPostalCode" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ShippingCountry" class="form-label">Country</label>
+                                <input asp-for="ShippingCountry" class="form-control" placeholder="United States" />
+                                <span asp-validation-for="ShippingCountry" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ShippingPhone" class="form-label">Phone Number</label>
+                                <input asp-for="ShippingPhone" class="form-control" placeholder="+1 234 567 8900" />
+                                <span asp-validation-for="ShippingPhone" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">Order Notes (Optional)</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="bi bi-wallet2"></i> Payment Method</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="cod" value="Cash on Delivery" checked>
+                            <label class="form-check-label" for="cod">
+                                <strong><i class="bi bi-cash-coin"></i> Cash on Delivery</strong>
+                                <p class="text-muted small mb-0">Pay when you receive your order</p>
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="card" value="Credit Card">
+                            <label class="form-check-label" for="card">
+                                <strong><i class="bi bi-credit-card"></i> Credit/Debit Card</strong>
+                                <p class="text-muted small mb-0">Visa, Mastercard, American Express (Demo)</p>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="bank" value="Bank Transfer">
+                            <label class="form-check-label" for="bank">
+                                <strong><i class="bi bi-bank"></i> Bank Transfer</strong>
+                                <p class="text-muted small mb-0">Direct bank transfer (Demo)</p>
+                            </label>
+                        </div>
+                        <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Order Summary -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Cart Items -->
+                        @foreach (var item in Model.Cart.CartItems)
+                        {
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@(item.Product?.ImageUrl ?? "https://via.placeholder.com/60")" alt="@item.Product?.Name" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 small">@item.Product?.Name</h6>
+                                    <small class="text-muted">Qty: @item.Quantity</small>
+                                </div>
+                                <span class="fw-bold">$@((item.Product?.CurrentPrice ?? 0 * item.Quantity).ToString("F2"))</span>
+                            </div>
+                        }
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>$@Model.Cart.SubTotal.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span>
+                                @if (Model.Cart.ShippingCost == 0)
+                                {
+                                    <span class="text-success">FREE</span>
+                                }
+                                else
+                                {
+                                    <span>$@Model.Cart.ShippingCost.ToString("F2")</span>
+                                }
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Tax (10%):</span>
+                            <span>$@Model.Cart.Tax.ToString("F2")</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Total:</strong>
+                            <strong class="text-primary fs-4">$@Model.Cart.Total.ToString("F2")</strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-check-circle"></i> Place Order
+                        </button>
+
+                        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">
+                            <i class="bi bi-arrow-left"></i> Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
