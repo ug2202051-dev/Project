@@ -1,140 +1,275 @@
-# ShopXS - E-Commerce Web Application
+# ShopSana – An Online Shopping Management System
 
-ShopXS is a modern e-commerce platform built using ASP.NET Core MVC with SQLite database. It is inspired by major platforms such as Amazon, Alibaba, and Daraz.
+## 📘 Project Overview
 
-## Features
+ShopSana is a modern e-commerce web application developed using **ASP.NET Core MVC (.NET 8.0)** with **MySQL database (via XAMPP)**. The project demonstrates a complete online shopping solution where customers can browse products, add items to cart, place orders, and manage their accounts securely.
 
-### Core Features
-- ✅ User Authentication & Authorization (ASP.NET Identity)
-- ✅ Product Catalog with Categories
-- ✅ Search & Filters
-- ✅ Shopping Cart
-- ✅ Order Management
-- ✅ Payment Integration (Mock Gateway)
-- ✅ Seller Marketplace
-- ✅ Reviews & Ratings
+### Features
+
+#### Customer Features
+- ✅ User Registration and Login (ASP.NET Core Identity)
+- ✅ Browse Products by Category
+- ✅ Search Products
+- ✅ Add to Cart & Update Cart
+- ✅ Place Orders
+- ✅ View Order History
+- ✅ User Profile Management
+
+#### Admin Features
 - ✅ Admin Dashboard with Analytics
+- ✅ Product Management (Add, Update, Delete)
+- ✅ Category Management
+- ✅ Order Management & Status Updates
+- ✅ User Management
 
-### User Types
-1. *Customers* - Browse products, add to cart, place orders, track shipments
-2. *Sellers* - Add products, manage inventory, view orders
-3. *Administrators* - Manage users, approve products, handle orders, view analytics
+---
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-- *Framework*: ASP.NET Core MVC (.NET 10)
-- *Database*: SQLite (easily switchable to MySQL/SQL Server)
-- *ORM*: Entity Framework Core
-- *Authentication*: ASP.NET Identity
-- *Frontend*: Razor Views, Bootstrap 5, Bootstrap Icons
-- *Architecture*: Layered (Presentation, Business Logic, Data Access)
+| Component | Technology |
+|-----------|------------|
+| Framework | ASP.NET Core MVC (.NET 8.0) |
+| Language | C# |
+| Database | MySQL (XAMPP) |
+| ORM | Entity Framework Core |
+| Authentication | ASP.NET Core Identity |
+| Frontend | Razor Views, Bootstrap 5, Bootstrap Icons |
+| Architecture | MVC Pattern (Model-View-Controller) |
 
-## Project Structure
+---
 
+## 📁 Project Structure
 
-ShopXS/
+```
+ShopSana/
 ├── Areas/
-│   ├── Admin/          # Admin dashboard and management
-│   └── Seller/         # Seller dashboard and products
-├── Controllers/        # Main application controllers
-├── Data/              # Database context
+│   └── Admin/               # Admin dashboard area
+│       ├── Controllers/     # Admin controllers
+│       └── Views/           # Admin views
+├── Controllers/             # Main application controllers
+├── Data/                    # Database context and initializer
 ├── Models/
-│   ├── Entities/      # Domain models
-│   └── ViewModels/    # View-specific models
-├── Services/          # Business logic layer
-├── Views/             # Razor views
-└── wwwroot/           # Static files
+│   ├── Entities/           # Domain models (Product, Order, etc.)
+│   └── ViewModels/         # View-specific models
+├── Services/               # Business logic layer
+├── Views/                  # Razor views
+│   ├── Account/
+│   ├── Cart/
+│   ├── Checkout/
+│   ├── Home/
+│   ├── Orders/
+│   ├── Products/
+│   └── Shared/
+└── wwwroot/               # Static files (CSS, JS, images)
+```
 
+---
 
-## Getting Started
+## 🚀 Step-by-Step Setup Guide
 
 ### Prerequisites
-- .NET 10 SDK
-- Visual Studio 2022+ or VS Code
 
-### Installation
+Before you begin, ensure you have the following installed:
 
-1. Clone the repository
-bash
+1. **.NET 8.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/8.0)
+2. **Visual Studio Code** - [Download here](https://code.visualstudio.com/)
+3. **XAMPP** (for MySQL) - [Download here](https://www.apachefriends.org/)
+4. **C# Dev Kit Extension** for VS Code
+
+### Step 1: Clone the Repository
+
+```bash
 git clone <repository-url>
-cd ShopXS
+cd Project/ShopSana
+```
 
+### Step 2: Install XAMPP and Configure MySQL
 
-2. Restore packages
-bash
+1. **Download and Install XAMPP** from https://www.apachefriends.org/
+2. **Start XAMPP Control Panel**
+3. **Start Apache and MySQL modules** by clicking "Start" buttons
+4. **Open phpMyAdmin**: Go to http://localhost/phpmyadmin/
+
+### Step 3: Create the Database
+
+1. Open **phpMyAdmin** (http://localhost/phpmyadmin/)
+2. Click on **"New"** in the left sidebar
+3. Enter database name: `shopsana_db`
+4. Select **Collation**: `utf8mb4_general_ci`
+5. Click **"Create"**
+
+### Step 4: Configure Database Connection
+
+The connection string is already configured in `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=3306;Database=shopsana_db;User=root;Password=;"
+  }
+}
+```
+
+> **Note**: If you have set a password for MySQL root user, update the `Password=` field.
+
+### Step 5: Restore NuGet Packages
+
+Open terminal in the ShopSana folder and run:
+
+```bash
+cd ShopSana
 dotnet restore
+```
 
+### Step 6: Run the Application
 
-3. Run the application
-bash
+```bash
 dotnet run
+```
 
+The application will start and automatically:
+- Create database tables using Entity Framework Core
+- Seed initial data (categories, products, admin user)
 
-4. Open your browser and navigate to http://localhost:5000
+### Step 7: Access the Application
 
-### Default Admin Account
-- *Email*: admin@shopxs.com
-- *Password*: Admin@123
+Open your browser and navigate to:
+- **Website**: https://localhost:5001 or http://localhost:5000
 
-## Database
+---
 
-The application uses SQLite by default. The database file (shopxs.db) is created automatically on first run.
+## 👤 Default Login Credentials
 
-### Seed Data
-- 5 default categories (Electronics, Clothing, Home & Garden, Sports, Books)
-- Admin user account
-- Roles: Admin, Seller, Customer
+### Admin Account
+- **Email**: admin@shopsana.com
+- **Password**: Admin@123
 
-## Architecture
+### Test Customer Account
+You can register a new customer account through the registration page.
 
-### Layered Architecture
-1. *Presentation Layer*: Razor Views, Controllers, ViewModels
-2. *Business Logic Layer*: Services with interfaces
-3. *Data Access Layer*: Entity Framework Core with Repository pattern
+---
 
-### Key Entities
-- User (ApplicationUser)
-- Product
-- Category
-- Cart / CartItem
-- Order / OrderItem
-- Payment
-- Review
-- Shipment
-- SupportTicket
-- Wishlist
+## 📖 Using Visual Studio Code
 
-## Security Features
-- Password hashing (ASP.NET Identity)
-- Role-based access control
-- CSRF protection
-- Input validation
-- Activity logging
+### Opening the Project
 
-## Screenshots
+1. Open VS Code
+2. Go to **File > Open Folder**
+3. Select the `ShopSana` folder
+4. Install recommended extensions when prompted
+
+### Running with VS Code
+
+1. Open the integrated terminal (`Ctrl + ~`)
+2. Navigate to the ShopSana folder: `cd ShopSana`
+3. Run: `dotnet run`
+4. Or press `F5` to run with debugging
+
+### Recommended VS Code Extensions
+
+- C# Dev Kit
+- C# Extensions
+- NuGet Package Manager
+
+---
+
+## 🗄️ Database Schema
+
+### Main Tables
+
+| Table | Description |
+|-------|-------------|
+| AspNetUsers | User accounts (extends ApplicationUser) |
+| AspNetRoles | User roles (Admin, Customer) |
+| Categories | Product categories |
+| Products | Product catalog |
+| Orders | Customer orders |
+| OrderItems | Items in each order |
+| CartItems | Shopping cart items |
+
+### Entity Relationships
+
+```
+Users ──────┬── Orders ──── OrderItems ──── Products
+            │
+            └── CartItems ──────────────── Products
+                                                │
+Categories ─────────────────────────────────────┘
+```
+
+---
+
+## 🎨 Screenshots
 
 ### Home Page
-Modern hero section with featured products and categories
+- Modern hero section with featured products
+- Category browsing
+- New arrivals section
 
 ### Product Catalog
-Filterable product grid with search and sorting
+- Filterable product grid with search
+- Category filters and sorting options
+- Pagination support
 
 ### Shopping Cart
-Full cart management with order summary
+- Full cart management
+- Order summary with taxes and shipping
+- Real-time updates
 
 ### Admin Dashboard
-Analytics and management interface
+- Sales analytics
+- Recent orders overview
+- Low stock alerts
 
-### Seller Dashboard
-Product management and order tracking
+---
 
-## Future Enhancements
-- AI Chatbot Support
-- AR/VR Product Preview
-- Advanced Analytics Dashboard
-- Real Payment Gateway Integration
-- Email Notifications
-- Inventory Management
+## 🔧 Troubleshooting
 
-## License
-This project is for educational purposes.
+### Common Issues
+
+1. **MySQL Connection Failed**
+   - Ensure XAMPP MySQL is running
+   - Check if port 3306 is not blocked
+   - Verify database name matches connection string
+
+2. **Migration Errors**
+   - Delete `obj` and `bin` folders
+   - Run `dotnet restore` again
+   - The database is auto-created on first run
+
+3. **Port Already in Use**
+   - Change the port in `launchSettings.json`
+   - Or kill the process using the port
+
+### Resetting the Database
+
+To reset the database and start fresh:
+
+1. Open phpMyAdmin
+2. Drop the `shopsana_db` database
+3. Recreate it
+4. Run the application again
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] Online payment gateway integration (PayPal, Stripe)
+- [ ] Product reviews and ratings system
+- [ ] Email notification system
+- [ ] AI-based product recommendations
+- [ ] Mobile application support
+- [ ] Wishlist functionality
+- [ ] Coupon/discount codes
+
+---
+
+## 📄 License
+
+This project is developed for educational purposes as part of the **Information System Analysis and Design Sessional** course.
+
+---
+
+## 👨‍💻 Author
+
+Developed with ❤️ using ASP.NET Core, MySQL, and Bootstrap 5
